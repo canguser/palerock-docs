@@ -1,8 +1,16 @@
 
 const path = require('path');
 const fs = require("fs");
+const labelMapping = require('./label-mapping');
 
 const docsDir = path.join(__dirname, '../');
+
+const getMappedTitle = (title) => {
+    if (title in labelMapping) {
+        return labelMapping[title];
+    }
+    return title;
+}
 
 const getGroupInfo = (pathname, title, origin = '/') => {
     const files = fs.readdirSync(pathname);
@@ -17,10 +25,8 @@ const getGroupInfo = (pathname, title, origin = '/') => {
         })
         .filter(({ state, filename }) => (state.isDirectory() || filename.toLowerCase().endsWith('.md')) && !filename.startsWith('.') && filename.toLowerCase() != 'readme.md');
     return {
-        title,
-        sidebarDepth: 3,
-        collapsable: validFiles.length > 5,
-        path: origin,
+        title: getMappedTitle(title),
+        sidebarDepth: 2,
         children: validFiles.map(
             ({ state, filename, filepath }) => {
                 let result = origin + filename + '/'
@@ -36,17 +42,39 @@ const getGroupInfo = (pathname, title, origin = '/') => {
     }
 }
 
+const getRootPages = (pathname) => {
+    const files = fs.readdirSync(docsDir);
+    const validFiles = files
+        .map(f => {
+            const state = fs.statSync(path.join(pathname, f));
+            return {
+                state,
+                filename: f,
+                filepath: path.join(pathname, f)
+            }
+        })
+        .filter(
+            ({ state, filename }) => state.isDirectory() && !filename.startsWith('.')
+        );
+
+    const result = validFiles
+        .map(({ filename, filepath }) => [
+            '/' + filename + '/', getGroupInfo(filepath, filename, '/' + filename + '/')
+        ])
+        .reduce((result = {}, [key, value]) => Object.assign(result, { [key]: [value] }), {});
+
+    result[''] = [getGroupInfo(pathname, '苍石居博客')];
+    return result;
+}
+
 // .vuepress/config.js
 module.exports = {
     themeConfig: {
         nav: [
             { text: '首页', link: '/' },
-            { text: '前端', link: '/fontend/' },
-            { text: '网站', link: 'http://doc.itclan.cn' }
+            { text: '前端', link: '/fontend/' }
         ],
-        sidebar: [
-            getGroupInfo(docsDir, '苍石居博客')
-        ],
+        sidebar: getRootPages(docsDir),
         lastUpdated: 'Last Updated', // string | boolean
         // 假定是 GitHub. 同时也可以是一个完整的 GitLab URL
         repo: 'vuejs/vuepress',
@@ -54,10 +82,7 @@ module.exports = {
         // "GitHub"/"GitLab"/"Bitbucket" 其中之一，或是 "Source"。
         repoLabel: '查看源码',
 
-        // 以下为可选的编辑链接选项
-
-        // 假如你的文档仓库和项目本身不在一个仓库：
-        docsRepo: 'vuejs/vuepress',
+        smoothScroll: true,
         // 假如文档不是放在仓库的根目录下：
         docsDir: 'docs',
         // 假如文档放在一个特定的分支下：
