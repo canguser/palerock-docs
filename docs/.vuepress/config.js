@@ -23,14 +23,17 @@ const getGroupInfo = (pathname, title, origin = '/') => {
                 filepath: path.join(pathname, f)
             }
         })
-        .filter(({ state, filename }) => (state.isDirectory() || filename.toLowerCase().endsWith('.md')) && !filename.startsWith('.') && filename.toLowerCase() != 'readme.md');
+        .filter(({ state, filename }) => (state.isDirectory() || filename.toLowerCase().endsWith('.md')) && !filename.startsWith('.'));
     return {
+        ...validFiles.find(f => f.filename.toLowerCase() === 'readme.md') ? {
+            path: origin
+        } : {},
         title: getMappedTitle(title),
         sidebarDepth: 2,
         children: validFiles.map(
             ({ state, filename, filepath }) => {
                 let result = origin + filename + '/'
-                if (state.isFile()) {
+                if (state.isFile() && filename.toLowerCase() !== 'readme.md') {
                     let result = origin + filename
                     return result.replace(/\.md/i, '')
                 }
@@ -72,24 +75,11 @@ module.exports = {
     themeConfig: {
         nav: [
             { text: '首页', link: '/' },
-            { text: '前端', link: '/fontend/' }
         ],
         sidebar: getRootPages(docsDir),
-        lastUpdated: 'Last Updated', // string | boolean
-        // 假定是 GitHub. 同时也可以是一个完整的 GitLab URL
-        repo: 'vuejs/vuepress',
-        // 自定义仓库链接文字。默认从 `themeConfig.repo` 中自动推断为
-        // "GitHub"/"GitLab"/"Bitbucket" 其中之一，或是 "Source"。
-        repoLabel: '查看源码',
-
+        lastUpdated: '最近更新', // string | boolean
+        logo: './image/logo-1.png',
         smoothScroll: true,
-        // 假如文档不是放在仓库的根目录下：
-        docsDir: 'docs',
-        // 假如文档放在一个特定的分支下：
-        docsBranch: 'master',
-        // 默认是 false, 设置为 true 来启用
-        editLinks: true,
-        // 默认为 "Edit this page"
-        editLinkText: '帮助我们改善此页面！'
-    }
+    },
+    port: '4044'
 }

@@ -1,4 +1,4 @@
-# [Webpack 踩坑] 使用 Webpack 打包 Web 端和 Node 服务端通用
+# [Webpack 踩坑] 使用 Webpack 打包 Web 端和 Node 服务端通用的依赖
 
 ## 引言
 
