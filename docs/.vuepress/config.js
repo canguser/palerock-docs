@@ -81,6 +81,5 @@ module.exports = {
         logo: './image/logo-1.png',
         smoothScroll: true,
     },
-    base: './',
     port: '4044'
 }
