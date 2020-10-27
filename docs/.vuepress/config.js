@@ -78,8 +78,10 @@ module.exports = {
         ],
         sidebar: getRootPages(docsDir),
         lastUpdated: '最近更新', // string | boolean
-        logo: './image/logo-1.png',
+        logo: '/image/logo-1.png',
         smoothScroll: true,
+        title: '苍博文档',
+        description: '',
     },
     port: '4044'
 }
