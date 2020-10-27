@@ -66,7 +66,7 @@ const getRootPages = (pathname) => {
         ])
         .reduce((result = {}, [key, value]) => Object.assign(result, { [key]: [value] }), {});
 
-    result[''] = [getGroupInfo(pathname, '苍石居博客')];
+    result[''] = [getGroupInfo(pathname, '苍博文档')];
     return result;
 }
 
@@ -77,7 +77,7 @@ module.exports = {
             { text: '首页', link: '/' },
         ],
         sidebar: getRootPages(docsDir),
-        lastUpdated: '最近更新', // string | boolean
+        lastUpdated: '上次更新', // string | boolean
         logo: '/image/logo-1.png',
         smoothScroll: true,
         title: '苍博文档',
