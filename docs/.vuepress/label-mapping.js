@@ -6,5 +6,8 @@ module.exports = {
     'webpack': 'Webpack 学习',
     'demo': '示例',
     'api': 'API 文档',
-    'config': '配置'
+    'config': '配置',
+    'tempermonkey': '油猴插件',
+    'simple-redirect': '简易重定向',
+    'object-clone': '对象克隆',
 }
