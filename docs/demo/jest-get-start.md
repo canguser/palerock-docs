@@ -1,4 +1,4 @@
-# JUnit Test Development
+# Jest Development
 ## Preparing
 - Learning about `npm` or `yarn`
 
@@ -16,13 +16,13 @@ npm i jest --save-dev
 ```
 
 ### Setup The Configuration File
+  
 1. Create javascript file in the root dir & named `'jest.config.js'`
 2. With this JS file, export the configuration we needed
     e.g.
     ```javascript
     module.exports = {
         watchPathIgnorePatterns: ['/node_modules/', '/dist/', '/.git/'],
-        moduleFileExtensions: ['js', 'json'],
         testMatch: ['<rootDir>/src/**/__tests__/**/*test.js'],
         coverageDirectory: 'build/test-coverage',
         coverageReporters: ['html', 'text'],
@@ -32,7 +32,57 @@ npm i jest --save-dev
         rootDir: __dirname
     };
     ```
+
+> `jest --init` command can help to create configuration file too.
+
+### Run With ES6
+1. Install babel
+    ```shell script
+    yarn add --dev babel-jest @babel/core @babel/preset-env
+    ```
+2. Create the configuration file named `'.babelrc'` in the root dir for babel
+    ```json
+    {
+        "presets": [
+            [
+            "@babel/preset-env"
+            ]
+        ]
+    }
+    ```
+
 > More configuration reference doc here: [Configuration Jest](https://jestjs.io/docs/en/configuration)
+
+### Run Jest
+- Run all test:
+    ```shell script
+    jest
+    ```
+- Run all test while files changed
+    ```shell script
+    # with git
+    jest --watch
+    ```
+    ```shell script
+    jest --watchAll
+    ```
+- Run all test & generator the code coverage result
+    ```shell script
+    jest --coverage
+    ```
+- We could add those commands to package.json
+    ```json
+    "scripts": {
+        "test": "yarn run test:all",
+        "test:all": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage"
+    },
+    ```
+    And the we could execute the command to run test
+    ```shell script
+    yarn run test
+    ```
 
 ### Writing Test
 
@@ -77,15 +127,24 @@ Using mocked function by using the api - `jest.fn(func)`
 Mocking modules by using this api - `jest.mock()`
 
 - `jest.mock(moduleName, factory, options)`
-```javascript
-jest.mock('../moduleName', () => {
-  return jest.fn(() => 42);
-});
+    ```javascript
+    jest.mock('../moduleName', () => {
+    return jest.fn(() => 42);
+    });
 
-// This runs the function specified as second argument to `jest.mock`.
-const moduleName = require('../moduleName');
-moduleName(); // Will return '42';
-```
+    // This runs the function specified as second argument to `jest.mock`.
+    const moduleName = require('../moduleName');
+    moduleName(); // Will return '42';
+    ```
+- `moduleNameMapper` property in `jest.config.js`
+    ```javascript
+    module.exports = {
+        // more...
+        moduleNameMapper: {
+            '^@module(.*)$': '<rootDir>/test/mock-module/$1'
+        }
+    };
+    ```
 
 ## Jest for Lightning Web Component
 
@@ -170,7 +229,7 @@ npm i sfdx-lwc-jest --save-dev
         expect(contentDiv.textContent).toBe('Testing content');
     });
     ```
-> For testing the dom, be better to testing with **`stateless components`**, the `stateful components`' testing is relatively difficult
+> For testing the dom, being better to testing with **`stateless components`**, the **`stateful components`** testing is relatively difficult
 
 #### Mock Wire Service
 1. Get the data snapshot & save it in the target dir named as `xxx.json` file
@@ -216,8 +275,53 @@ npm i sfdx-lwc-jest --save-dev
     ```
 
 #### Testing Event Listener
+Method - `addEventListener` in element to listen, `jest.fn` to mock.  
+e.g.
+```javascript
+it('Test event handler', () => {
+    const element = createElement('c-jest01', {
+        is: Jest01
+    });
+
+    // create mock function
+    const connectCallback = jest.fn();
+
+    // listen connect
+    element.addEventListener('connected', connectCallback);
+
+    document.body.appendChild(element);
+
+    // the callback executed once
+    expect(connectCallback.mock.calls.length).toBe(1);
+});
+```
 
 #### Mock Importing Modules
+
+- With `moduleNameMapper` in configuration
+    1. Download the basic resources from [lwc-recipes](https://github.com/trailheadapps/lwc-recipes/tree/master/force-app/test/jest-mocks)
+    2. Create dir `/force-app/test` & zip above in it 
+    3. In the property `moduleNameMapper`
+        ```javascript
+        module.export = {
+            // other...
+            moduleNameMapper: {
+                '^@salesforce/apex$': '<rootDir>/force-app/test/jest-mocks/apex',
+                '^@salesforce/schema$': '<rootDir>/force-app/test/jest-mocks/schema',
+                '^lightning/navigation$':
+                    '<rootDir>/force-app/test/jest-mocks/lightning/navigation',
+                '^lightning/platformShowToastEvent$':
+                    '<rootDir>/force-app/test/jest-mocks/lightning/platformShowToastEvent',
+                '^lightning/uiRecordApi$':
+                    '<rootDir>/force-app/test/jest-mocks/lightning/uiRecordApi',
+                '^lightning/messageService$':
+                    '<rootDir>/force-app/test/jest-mocks/lightning/messageService'
+            },
+        }
+        ```
+- With `jest.mock` function
+
+> You can write the custom roles for all above
 
 #### End-to-End Test
 

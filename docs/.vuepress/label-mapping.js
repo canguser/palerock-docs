@@ -10,4 +10,5 @@ module.exports = {
     'tempermonkey': '油猴插件',
     'simple-redirect': '简易重定向',
     'object-clone': '对象克隆',
+    'demo': '演示',
 }
