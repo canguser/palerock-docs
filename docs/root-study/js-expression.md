@@ -535,7 +535,7 @@ console.log(func(context)); // > 6
 按照表达式 `'handler(c.d) + a + b'` 生成的 `function` 应该是
 ```javascript
 function _(context){
-    return context.handler(context.c.context.d) + context.a + context.b
+    return context.handler(context.c.d) + context.a + context.b
 }
 ```
 输出结果是 `6`，完全符合预期，Nice！
