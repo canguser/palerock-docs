@@ -465,7 +465,7 @@ function parseExpression(expression, contextName = 'context') {
     const body = ASTResult.program.body[0]; // 默认表达式只有单个语句，只解析第一句的内容
 
     recast.visit(body, {
-        // 遍历所有最外层的 MemberExpression 节点，将所有 MemberExpression 节点下的 object 属性更新为
+        // 遍历所有 Identifier 节点
         visitIdentifier(path) {
             const currentNode = path.node;
             // 获取指定节点的父节点，如果父节点是 MemberExpression 节点，并且当前节点是属于 property 属性则不做替换
