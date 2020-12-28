@@ -9,6 +9,7 @@ Options:
     The element is positioned according to the normal flow of the document, and then offset relative to its <em>nearest scrolling ancestor</em> and <a href="/en-US/docs/Web/CSS/Containing_Block">containing block</a> (nearest block-level ancestor), including table-related elements, based on the values of <code>top</code>, <code>right</code>, <code>bottom</code>, and <code>left</code>. The offset does not affect the position of any other elements.</dd>
     This value always creates a new <a href="/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context">stacking context</a>. Note that a sticky element "sticks" to its nearest ancestor that has a "scrolling mechanism" (created when <code>overflow</code> is <code>hidden</code>, <code>scroll</code>, <code>auto</code>, or <code>overlay</code>), even if that ancestor isn't the nearest actually scrolling ancestor. This effectively inhibits any "sticky" behavior (see the <a href="https://github.com/w3c/csswg-drafts/issues/865">GitHub issue on W3C CSSWG</a>).
 
+> Demo for sticky: [https://mdn.mozillademos.org/zh-CN/docs/Web/CSS/position$samples/Sticky_positioning?revision=1631402](https://mdn.mozillademos.org/zh-CN/docs/Web/CSS/position$samples/Sticky_positioning?revision=1631402) 
 
 Some attribute related to position
 1. top, right, bottom, left
@@ -64,15 +65,16 @@ Samples:
 
 ## CSS Methods
 
-### `var()`
+### `var( <custom-property-name> , <declaration-value>? )`
+- `<custom-property-name>`
+- `<declaration-value>`
 
-### `calc()`
-
+### `calc( <calc-sum> | <calc-product> | <calc-value> )`
 
 ## Some Other New Features
 
 ### Color Value Support
-- rgb(0 0 0) (CSS4)
-- rgba(0 0 0 / 50%) (CSS4)
-- hsl(0deg 0% 0%) (CSS4)
-- hsla(0deg 0% 0% / 50%) (CSS4)
+- `rgb(0 0 0) (CSS4)`
+- `rgba(0 0 0 / 50%) (CSS4)`
+- `hsl(0deg 0% 0%) (CSS4)`
+- `hsla(0deg 0% 0% / 50%) (CSS4)`
