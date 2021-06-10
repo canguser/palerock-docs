@@ -184,13 +184,13 @@ vm.run(`
    像这样的逻辑会一直卡住主线程，`timeout` 也会失效
 3. 会在初始化时就实例化出配置的子线程，如果是4，就会实例化4条，对资源占用很不友好，并且需要手动调用 `safeify.destory()` 方法去销毁子线程，由于执行脚本是异步的，对销毁时机需要很好的把握，一不小心就把还没执行完的子线程销毁掉了
 
-研究了一下其代码以及其逻辑，感觉并不复杂，于是绝对重写一个库，以解决以上问题
+研究了一下其代码以及其逻辑，感觉并不复杂，于是决定重写一个库，以解决以上问题
 
 ### VM Guard for NodeJS
 
 > `vm-guard` 是一个可以解决我文中所诉的所有痛点的库，其基于 `vm2` 中的 `NodeVM`，是一个用于 NodeJS 的沙箱运行环境
 > 
-> 开源地址/文档：[https://github.com/canguser/vm-guard]
+> 开源地址/文档：[https://github.com/canguser/vm-guard]([https://github.com/canguser/vm-guard])
 
 #### 相对与 `vm2` 中的 `NodeVM` 解决的问题
 1. 多线程增加运行沙箱代码的运行速率
