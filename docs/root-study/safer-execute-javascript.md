@@ -129,11 +129,11 @@ vm.run(`
 
 *那怎么解决这个问题呢？*
 
-很多人看到这应该都能想到，可以通过线程去运行代码，然后如果超时便结束线程。是的，有了思路，发现 github 上有一个库叫做 `safeify` 正是通过这种思路来对 `vm2` 加了一层封装，其核心思路大致如下：
+很多人看到这应该都能想到，可以通过进程去运行代码，然后如果超时便结束进程。是的，有了思路，发现 github 上有一个库叫做 `safeify` 正是通过这种思路来对 `vm2` 加了一层封装，其核心思路大致如下：
 
-1. 通过沙箱在自线程中运行脚本
+1. 通过沙箱在子进程中运行脚本
 2. 通过进程池统一调度管理沙箱进程
-3. 处理的数据和结果返回给主线程
+3. 处理的数据和结果返回给主进程
 4. 针对沙箱进程进行 CPU 、内存以及超时的限制
 
 > 其中限制 CPU 和内存是通过 `Linux` 上的 `CGoups` 实现的
@@ -141,7 +141,7 @@ vm.run(`
 然而通过使用这个库，我又发现了很多问题
 
 1. 其封装的是 `vm2` 中的 `VM` 模块而不是 `NodeVM` 模块，像在脚本中引入其它依赖是没法实现了
-2. 由于线程通信的限制，该模块将指定 `context` 中的方法的运行还是放在主线程中运行，没有完全的异步交给子线程
+2. 由于进程通信的限制，该模块将指定 `context` 中的方法的运行还是放在主进程中运行，没有完全的异步交给子进程
    ```javascript
    const safeVm = new Safeify({
     timeout: 50,          //超时时间，默认 50ms
@@ -181,8 +181,8 @@ vm.run(`
 
     })();
    ```
-   像这样的逻辑会一直卡住主线程，`timeout` 也会失效
-3. 会在初始化时就实例化出配置的子线程，如果是4，就会实例化4条，对资源占用很不友好，并且需要手动调用 `safeify.destory()` 方法去销毁子线程，由于执行脚本是异步的，对销毁时机需要很好的把握，一不小心就把还没执行完的子线程销毁掉了
+   像这样的逻辑会一直卡住主进程，`timeout` 也会失效
+3. 会在初始化时就实例化出配置的子进程，如果是4，就会实例化4条，对资源占用很不友好，并且需要手动调用 `safeify.destory()` 方法去销毁子进程，由于执行脚本是异步的，对销毁时机需要很好的把握，一不小心就把还没执行完的子进程销毁掉了
 
 研究了一下其代码以及其逻辑，感觉并不复杂，于是决定重写一个库，以解决以上问题
 
@@ -190,25 +190,26 @@ vm.run(`
 
 > `vm-guard` 是一个可以解决我文中所诉的所有痛点的库，其基于 `vm2` 中的 `NodeVM`，是一个用于 NodeJS 的沙箱运行环境
 > 
-> 开源地址/文档：[https://github.com/canguser/vm-guard]([https://github.com/canguser/vm-guard])
+> 开源地址/文档：[https://github.com/canguser/vm-guard](https://github.com/canguser/vm-guard)
 
-#### 相对与 `vm2` 中的 `NodeVM` 解决的问题
-1. 多线程增加运行沙箱代码的运行速率
+#### 相对于 `vm2` 中的 `NodeVM` 解决的问题
+1. 多进程增加运行沙箱代码的运行速率
 2. 新增 `timeout` (超时)可遏制在 `NodeJS` 环境下 `VM2` 所不能解决的恶意代码，如：
     ```javascript
     while (true) {}
     ```
 
-#### 相对与 `safeify` 解决的问题：
+#### 相对于 `safeify` 解决的问题：
 1. 使用 `NodeVM` 模块，可以支持更丰富的脚本自定义功能，并且和 `vm2` 中的 `NodeVM` 模块的配置属性完全兼容
-2. 在 `vm-guard` 中，我们不需要在传给脚本的 `context` 里声明方法（也不能，也没必要），通过 `NodeVM` 模块我们可以指定依赖，并且依赖也是会运行在子线程中的
-3. 动态的线程管理，在 `vm-guard` 中，会动态的管理子线程，在没运行脚本时，不会开启任何子线程，如果需要运行脚本，会开启不大于设置数量的子线程来分别运行脚本，同时运行多个脚本时，未运行的脚本会在队列中等待空闲线程，一旦所有脚本运行完毕，便会自动清理线程
+2. 在 `vm-guard` 中，我们不需要在传给脚本的 `context` 里声明方法（也不能，也没必要），通过 `NodeVM` 模块我们可以指定依赖，并且依赖也是会运行在子进程中的
+3. 动态的进程管理，在 `vm-guard` 中，会动态的管理子进程，在没运行脚本时，不会开启任何子进程，如果需要运行脚本，会开启不大于设置数量的子进程来分别运行脚本，同时运行多个脚本时，未运行的脚本会在队列中等待空闲进程，一旦所有脚本运行完毕，便会自动清理进程
 
 
 ## 参考项目
 - [`VM`: https://nodejs.org/api/vm.html](https://nodejs.org/api/vm.html)
 - [`vm2`: https://github.com/patriksimek/vm2](https://github.com/patriksimek/vm2)
 - [`safeify`: https://github.com/Houfeng/safeify](https://github.com/Houfeng/safeify)
+- [`vm-guard`: https://github.com/canguser/vm-guard](https://github.com/canguser/vm-guard)
 
 ## 参考文章
 - [`Safeify`: https://github.com/Houfeng/safeify/blob/master/DOC.md](https://github.com/Houfeng/safeify/blob/master/DOC.md)
